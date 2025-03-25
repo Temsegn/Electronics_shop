@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shopping_cart/models/cart_item.dart';
-import 'package:shopping_cart/models/product.dart';
-import 'package:shopping_cart/services/cart_service.dart';
+import 'package:electronics_shop_app/models/cart_item.dart';
+import 'package:electronics_shop_app/models/product.dart';
+import 'package:electronics_shop_app/services/cart_service.dart';
 
 final cartServiceProvider = Provider<CartService>((ref) {
   return CartService();

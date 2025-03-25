@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:shopping_cart/models/cart_item.dart';
-import 'package:shopping_cart/models/product.dart';
-import 'package:shopping_cart/views/screens/splash_screen.dart';
+import 'package:electronics_shop_app/models/cart_item.dart';
+import 'package:electronics_shop_app/models/product.dart';
+import 'package:electronics_shop_app/views/screens/onboarding_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

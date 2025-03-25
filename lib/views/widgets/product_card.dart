@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shopping_cart/models/product.dart';
-import 'package:shopping_cart/viewmodels/cart_view_model.dart';
+import 'package:electronics_shop_app/models/product.dart';
+import 'package:electronics_shop_app/viewmodels/cart_view_model.dart';
 
 class ProductCard extends ConsumerWidget {
   final Product product;
@@ -34,9 +34,6 @@ class ProductCard extends ConsumerWidget {
               width: double.infinity,
               fit: BoxFit.cover,
               errorBuilder: (context, error, stackTrace) {
-                return Container(
-                  height: 140,
-                  width:  {
                 return Container(
                   height: 140,
                   width: double.infinity,
@@ -138,4 +135,3 @@ class ProductCard extends ConsumerWidget {
     );
   }
 }
-

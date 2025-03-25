@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart' hide ConsumerStatefulWidget;
 import 'package:flutter_riverpod/flutter_riverpod.dart' show ConsumerStatefulWidget;
-import 'package:shopping_cart/viewmodels/cart_view_model.dart';
-import 'package:shopping_cart/views/screens/cart_screen.dart';
-import 'package:shopping_cart/views/widgets/product_grid.dart';
+import 'package:electronics_shop_app/viewmodels/cart_view_model.dart';
+import 'package:electronics_shop_app/views/screens/cart_screen.dart';
+import 'package:electronics_shop_app/views/widgets/product_grid.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});

@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shopping_cart/models/product.dart';
-import 'package:shopping_cart/services/api_service.dart';
+import 'package:electronics_shop_app/models/product.dart';
+import 'package:electronics_shop_app/services/api_service.dart';
 
 final apiServiceProvider = Provider<ApiService>((ref) {
   return ApiService();

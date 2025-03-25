@@ -1,6 +1,6 @@
 import 'package:hive/hive.dart';
-import 'package:shopping_cart/models/cart_item.dart';
-import 'package:shopping_cart/models/product.dart';
+import 'package:electronics_shop_app/models/cart_item.dart';
+import 'package:electronics_shop_app/models/product.dart';
 
 class CartService {
   final Box<CartItem> _cartBox = Hive.box<CartItem>('cart');

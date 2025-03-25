@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:shopping_cart/models/product.dart';
+import 'package:electronics_shop_app/models/product.dart';
 
 class ApiService {
   static const String baseUrl = 'https://dummyjson.com';
