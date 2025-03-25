@@ -86,7 +86,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           decoration: InputDecoration(
             hintText: 'Search products...',
             filled: true,
-            fillColor: Colors.grey[100],
+            fillColor: Colors.white,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide.none,

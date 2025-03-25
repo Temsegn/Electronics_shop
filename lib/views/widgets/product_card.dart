@@ -66,7 +66,7 @@ class ProductCard extends ConsumerWidget {
                     ),
                     child: Image.network(
                       product.thumbnail,
-                      height: isHorizontal ? 90 : (isTablet ? 160 : 100),
+                      height: isHorizontal ? 90 : (isTablet ? 160 : 130),
                       width: double.infinity,
                       fit: BoxFit.cover,
                       loadingBuilder: (context, child, loadingProgress) {
@@ -123,8 +123,8 @@ class ProductCard extends ConsumerWidget {
                     ),
                   // Favorite Icon
                   Positioned(
-                    top: 8,
-                    right: 8,
+                    top: 0,
+                    right: 0,
                     child: IconButton(
                       icon: Icon(
                         isFavorite ? Icons.favorite : Icons.favorite_border,
@@ -162,8 +162,7 @@ class ProductCard extends ConsumerWidget {
                       },
                     ),
                   ),
-                  // Add to Cart Button (Bottom Right of Image)
-                  Positioned(
+                   Positioned(
                     bottom: 8,
                     right: 8,
                     child: GestureDetector(
