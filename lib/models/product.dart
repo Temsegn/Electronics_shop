@@ -53,18 +53,36 @@ class Product extends HiveObject {
 
   factory Product.fromJson(Map<String, dynamic> json) {
     return Product(
-      id: json['id'],
-      title: json['title'],
-      description: json['description'],
-      price: json['price'].toDouble(),
-      discountPercentage: json['discountPercentage'].toDouble(),
-      rating: json['rating'].toDouble(),
-      stock: json['stock'],
-      brand: json['brand'],
-      category: json['category'],
-      thumbnail: json['thumbnail'],
-      images: List<String>.from(json['images']),
+      id: json['id'] as int? ?? 0,
+      title: json['title'] as String? ?? '',
+      description: json['description'] as String? ?? '',
+      price: _parseDouble(json['price']),
+      discountPercentage: _parseDouble(json['discountPercentage']),
+      rating: _parseDouble(json['rating']),
+      stock: json['stock'] as int? ?? 0,
+      brand: json['brand'] as String? ?? '',
+      category: json['category'] as String? ?? '',
+      thumbnail: json['thumbnail'] as String? ?? '',
+      images: _parseStringList(json['images']),
     );
+  }
+
+  // Helper method to safely parse doubles
+  static double _parseDouble(dynamic value) {
+    if (value == null) return 0.0;
+    if (value is double) return value;
+    if (value is int) return value.toDouble();
+    if (value is String) return double.tryParse(value) ?? 0.0;
+    return 0.0;
+  }
+
+  // Helper method to safely parse string lists
+  static List<String> _parseStringList(dynamic value) {
+    if (value == null) return [];
+    if (value is List) {
+      return value.map((item) => item.toString()).toList();
+    }
+    return [];
   }
 
   double get discountedPrice {
@@ -87,4 +105,3 @@ class Product extends HiveObject {
     };
   }
 }
-

@@ -12,17 +12,17 @@ class ApiService {
       );
 
       if (response.statusCode == 200) {
-        final Map<String, dynamic> data = json.decode(response.body);
-        final List<dynamic> productsJson = data['products'];
+        final Map<String, dynamic> data = json.decode(response.body) as Map<String, dynamic>;
+        final List<dynamic> productsJson = data['products'] as List<dynamic>? ?? [];
         final List<Product> products = productsJson
-            .map((json) => Product.fromJson(json))
+            .map((json) => Product.fromJson(json as Map<String, dynamic>))
             .toList();
 
         return {
           'products': products,
-          'total': data['total'],
-          'skip': data['skip'],
-          'limit': data['limit'],
+          'total': data['total'] as int? ?? 0,
+          'skip': data['skip'] as int? ?? 0,
+          'limit': data['limit'] as int? ?? 10,
         };
       } else {
         throw Exception('Failed to load products: ${response.statusCode}');
@@ -39,7 +39,7 @@ class ApiService {
       );
 
       if (response.statusCode == 200) {
-        final Map<String, dynamic> data = json.decode(response.body);
+        final Map<String, dynamic> data = json.decode(response.body) as Map<String, dynamic>;
         return Product.fromJson(data);
       } else {
         throw Exception('Failed to load product: ${response.statusCode}');
@@ -56,10 +56,10 @@ class ApiService {
       );
 
       if (response.statusCode == 200) {
-        final Map<String, dynamic> data = json.decode(response.body);
-        final List<dynamic> productsJson = data['products'];
+        final Map<String, dynamic> data = json.decode(response.body) as Map<String, dynamic>;
+        final List<dynamic> productsJson = data['products'] as List<dynamic>? ?? [];
         return productsJson
-            .map((json) => Product.fromJson(json))
+            .map((json) => Product.fromJson(json as Map<String, dynamic>))
             .toList();
       } else {
         throw Exception('Failed to search products: ${response.statusCode}');
@@ -69,4 +69,3 @@ class ApiService {
     }
   }
 }
-

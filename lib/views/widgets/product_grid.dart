@@ -50,7 +50,8 @@ class ProductGrid extends ConsumerWidget {
 
     return NotificationListener<ScrollNotification>(
       onNotification: (ScrollNotification scrollInfo) {
-        if (scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent) {
+        if (!productsState.isLoading && 
+            scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent) {
           productsNotifier.loadMore();
           return true;
         }
@@ -79,4 +80,3 @@ class ProductGrid extends ConsumerWidget {
     );
   }
 }
-
