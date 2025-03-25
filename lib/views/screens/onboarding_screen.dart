@@ -33,10 +33,10 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-          const  Icon(
+            Icon(
               Icons.shopping_cart,
               size: 100,
-              color: Colors.white,
+              color: Theme.of(context).colorScheme.primary,
             ),
             const SizedBox(height: 24),
             Text(
