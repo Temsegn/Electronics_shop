@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:electronics_shop_app/models/product.dart';
 import 'package:electronics_shop_app/viewmodels/cart_view_model.dart';
 import 'package:electronics_shop_app/viewmodels/favorite_view_model.dart';
-import 'package:electronics_shop_app/views/screens/product_detail_screen.dart'; // Import the detail screen
+import 'package:electronics_shop_app/views/screens/product_detail_screen.dart';
 
 class ProductCard extends ConsumerWidget {
   final Product product;
@@ -54,6 +54,7 @@ class ProductCard extends ConsumerWidget {
             ],
           ),
           child: Column(
+            mainAxisSize: MainAxisSize.min, // Make the outer Column shrink to fit content
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Image Section
@@ -222,6 +223,7 @@ class ProductCard extends ConsumerWidget {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
                 child: Column(
+                  mainAxisSize: MainAxisSize.min, // Make the inner Column shrink to fit content
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Title

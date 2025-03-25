@@ -146,7 +146,7 @@ Widget _buildHomeContent(List<Product> topRatedProducts, ProductsState productsS
         _buildSectionTitle('Top Rated Products', () {}),
         SliverToBoxAdapter(
           child: SizedBox(
-            height: 200, // Reduced height to match smaller cards
+            height: 200,
             child: topRatedProducts.isEmpty
                 ? const Center(child: Text('No top-rated products found'))
                 : ListView.builder(
@@ -177,7 +177,7 @@ Widget _buildHomeContent(List<Product> topRatedProducts, ProductsState productsS
                     sliver: SliverGrid(
                       gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
                         maxCrossAxisExtent: 200,
-                        childAspectRatio: 0.6, // Reduced aspect ratio to give more vertical space
+                        childAspectRatio: 0.65, // Adjusted to account for shorter cards
                         crossAxisSpacing: 12,
                         mainAxisSpacing: 12,
                       ),
