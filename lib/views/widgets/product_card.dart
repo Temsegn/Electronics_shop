@@ -2,15 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:electronics_shop_app/models/product.dart';
 import 'package:electronics_shop_app/viewmodels/cart_view_model.dart';
+import 'package:electronics_shop_app/viewmodels/favorite_view_model.dart';
+import 'package:electronics_shop_app/views/screens/product_detail_screen.dart';
 
 class ProductCard extends ConsumerWidget {
   final Product product;
+  final bool isHorizontal;
 
-  const ProductCard({super.key, required this.product});
+  const ProductCard({
+    super.key, 
+    required this.product,
+    this.isHorizontal = false,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final cartNotifier = ref.read(cartProvider.notifier);
+    final isFavorite = ref.watch(favoritesProvider).contains(product);
+    final favoritesNotifier = ref.read(favoritesProvider.notifier);
     final isTablet = MediaQuery.of(context).size.width > 600;
     final screenWidth = MediaQuery.of(context).size.width;
     final buttonPadding = screenWidth < 600 ? 8.0 : 12.0;
@@ -18,7 +27,13 @@ class ProductCard extends ConsumerWidget {
 
     return GestureDetector(
       onTap: () {
-        // Add navigation to product details if needed
+        // Navigate to product details
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ProductDetailScreen(product: product),
+          ),
+        );
       },
       child: Card(
         elevation: 4,
@@ -27,8 +42,8 @@ class ProductCard extends ConsumerWidget {
         child: Container(
           constraints: BoxConstraints(
             maxWidth: isTablet ? 300 : 200,
-            minHeight: 200,
-            maxHeight: 250,
+            minHeight: isHorizontal ? 180 : 200,
+            maxHeight: isHorizontal ? 230 : 250,
           ),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
@@ -44,7 +59,7 @@ class ProductCard extends ConsumerWidget {
             children: [
               // Image Section with Add Button
               AspectRatio(
-                aspectRatio: 1.5,
+                aspectRatio: isHorizontal ? 1.3 : 1.5,
                 child: Stack(
                   children: [
                     ClipRRect(
@@ -100,6 +115,52 @@ class ProductCard extends ConsumerWidget {
                           ),
                         ),
                       ),
+                    // Favorite Button
+                    Positioned(
+                      top: 5,
+                      right: 5,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.8),
+                          shape: BoxShape.circle,
+                        ),
+                        child: IconButton(
+                          icon: Icon(
+                            isFavorite ? Icons.favorite : Icons.favorite_border,
+                            color: isFavorite ? Colors.red : Colors.grey,
+                            size: 20,
+                          ),
+                          constraints: const BoxConstraints(
+                            minWidth: 32,
+                            minHeight: 32,
+                          ),
+                          padding: const EdgeInsets.all(4),
+                          onPressed: () {
+                            if (isFavorite) {
+                              favoritesNotifier.removeFromFavorites(product);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Removed from favorites'),
+                                  backgroundColor: Colors.grey[800],
+                                  behavior: SnackBarBehavior.floating,
+                                  duration: const Duration(seconds: 1),
+                                ),
+                              );
+                            } else {
+                              favoritesNotifier.addToFavorites(product);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Added to favorites'),
+                                  backgroundColor: Colors.red[400],
+                                  behavior: SnackBarBehavior.floating,
+                                  duration: const Duration(seconds: 1),
+                                ),
+                              );
+                            }
+                          },
+                        ),
+                      ),
+                    ),
                     // Add Button
                     Positioned(
                       bottom: 3,
@@ -190,6 +251,25 @@ class ProductCard extends ConsumerWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
+                    // Rating
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.star,
+                          color: Colors.amber,
+                          size: 16,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          product.rating.toString(),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey[700],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
                     // Price Row
                     Row(
                       children: [

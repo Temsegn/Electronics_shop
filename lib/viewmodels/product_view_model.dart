@@ -129,5 +129,29 @@ class ProductsNotifier extends StateNotifier<ProductsState> {
       fetchProducts();
     }
   }
-}
+   
+
+  // Existing methods...
+
+  Future<List<Product>> getTopRatedProducts() async {
+    state = state.copyWith(isLoading: true, errorMessage: null);
+
+    try {
+      final topRatedProducts = await _apiService.getTopRatedProducts();
+      state = state.copyWith(
+        products: topRatedProducts,
+        isLoading: false,
+        hasMore: false, // Assuming no pagination for top-rated products
+      );
+      return topRatedProducts;  // Return the list of top-rated products
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: e.toString(),
+      );
+      throw e;  // Re-throw to handle it in the calling code
+    }
+  }}
+
+
 
