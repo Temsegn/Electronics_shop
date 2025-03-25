@@ -46,10 +46,24 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final cartItemCount = ref.watch(cartProvider.select((cart) => cart.items.length));
     final isTablet = MediaQuery.of(context).size.width > 600;
     final productsState = ref.watch(productsProvider);
-    final topRatedProducts = ref.read(productsProvider.notifier).getTopRatedProducts();
 
     final screens = [
-      _buildHomeContent(topRatedProducts, productsState),
+      // Using FutureBuilder to handle the async topRatedProducts loading
+      FutureBuilder<List<Product>>(
+        future: ref.read(productsProvider.notifier).getTopRatedProducts(), // Future to get top-rated products
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (snapshot.hasData) {
+            final topRatedProducts = snapshot.data!;
+            return _buildHomeContent(topRatedProducts, productsState);
+          } else {
+            return const Center(child: Text('No top-rated products available'));
+          }
+        },
+      ),
       const FavoritesScreen(),
       const AccountScreen(),
     ];
@@ -67,7 +81,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  /// **🔹 Modern App Bar**
   AppBar _buildAppBar(int cartItemCount) {
     return AppBar(
       title: AnimatedCrossFade(
@@ -130,7 +143,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  /// **🔹 Home Content with Horizontal Scroll for Top Products**
   Widget _buildHomeContent(List<Product> topRatedProducts, ProductsState productsState) {
     return RefreshIndicator(
       onRefresh: () async => ref.read(productsProvider.notifier).fetchProducts(refresh: true),
@@ -190,7 +202,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  /// **🔹 Bottom Navigation with Modern Look**
   Widget _buildBottomNavigationBar() {
     return BottomNavigationBar(
       currentIndex: _currentIndex,
