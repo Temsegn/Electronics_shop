@@ -1,8 +1,29 @@
 import 'package:flutter/material.dart';
-import 'package:electronics_shop_app/views/screens/onboarding_screen.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:shopping_cart/models/cart_item.dart';
+import 'package:shopping_cart/models/product.dart';
+import 'package:shopping_cart/views/screens/splash_screen.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize Hive
+  await Hive.initFlutter();
+  
+  // Register Hive adapters
+  Hive.registerAdapter(ProductAdapter());
+  Hive.registerAdapter(CartItemAdapter());
+  
+  // Open Hive boxes
+  await Hive.openBox<CartItem>('cart');
+  await Hive.openBox('settings');
+  
+  runApp(
+    const ProviderScope(
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -36,7 +57,8 @@ class MyApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ), 
-      home: const OnboardingScreen(),
+      home: const SplashScreen(),
     );
   }
 }
+
