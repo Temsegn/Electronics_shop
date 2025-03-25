@@ -48,7 +48,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final productsState = ref.watch(productsProvider);
 
     final screens = [
-      // Use Consumer to watch the topRatedProductsProvider
       Consumer(
         builder: (context, ref, child) {
           final topRatedAsync = ref.watch(topRatedProductsProvider);
@@ -64,8 +63,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     ];
 
     return Scaffold(
+      backgroundColor: Colors.white, // Main scaffold background
       appBar: _buildAppBar(cartItemCount),
-      body: screens[_currentIndex],
+      body: Container(color: Colors.white, child: screens[_currentIndex]), // Ensure screen background
       bottomNavigationBar: _buildBottomNavigationBar(),
       floatingActionButton: isTablet && cartItemCount > 0 && _currentIndex == 0
           ? FloatingActionButton(
@@ -78,15 +78,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   AppBar _buildAppBar(int cartItemCount) {
     return AppBar(
+      backgroundColor: Colors.white,
+      elevation: 1,
       title: AnimatedCrossFade(
-        firstChild: const Text('Tech Haven', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22)),
+        firstChild: const Text('Tech Haven', 
+          style: TextStyle(
+            fontWeight: FontWeight.bold, 
+            fontSize: 22,
+            color: Colors.black87,
+          )),
         secondChild: TextField(
           controller: _searchController,
           autofocus: true,
           decoration: InputDecoration(
             hintText: 'Search products...',
             filled: true,
-            fillColor: Colors.white,
+            fillColor: Colors.grey[100],
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide.none,
@@ -101,9 +108,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         crossFadeState: _isSearching ? CrossFadeState.showSecond : CrossFadeState.showFirst,
         duration: const Duration(milliseconds: 300),
       ),
+      iconTheme: const IconThemeData(color: Colors.black87),
       actions: [
         IconButton(
-          icon: Icon(_isSearching ? Icons.close : Icons.search),
+          icon: Icon(_isSearching ? Icons.close : Icons.search, color: Colors.black87),
           onPressed: () {
             setState(() {
               _isSearching = !_isSearching;
@@ -118,7 +126,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           alignment: Alignment.center,
           children: [
             IconButton(
-              icon: const Icon(Icons.shopping_cart),
+              icon: const Icon(Icons.shopping_cart, color: Colors.black87),
               onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CartScreen())),
             ),
             if (cartItemCount > 0)
@@ -127,9 +135,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 right: 6,
                 child: Container(
                   padding: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(color: Theme.of(context).colorScheme.error, shape: BoxShape.circle),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.error, 
+                    shape: BoxShape.circle),
                   constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
-                  child: Text('$cartItemCount', style: const TextStyle(color: Colors.white, fontSize: 10)),
+                  child: Text('$cartItemCount', 
+                    style: const TextStyle(color: Colors.white, fontSize: 10)),
                 ),
               ),
           ],
@@ -137,92 +148,151 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ],
     );
   }
-Widget _buildHomeContent(List<Product> topRatedProducts, ProductsState productsState) {
-  return RefreshIndicator(
-    onRefresh: () async => ref.read(productsProvider.notifier).fetchProducts(refresh: true),
-    child: CustomScrollView(
-      controller: _scrollController,
-      slivers: [
-        _buildSectionTitle('Top Rated Products', () {}),
-        SliverToBoxAdapter(
-          child: SizedBox(
-            height: 200,
-            child: topRatedProducts.isEmpty
-                ? const Center(child: Text('No top-rated products found'))
-                : ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    scrollDirection: Axis.horizontal,
-                    itemCount: topRatedProducts.length,
-                    itemBuilder: (_, index) => Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
-                      child: ProductCard(
-                        product: topRatedProducts[index],
-                        isHorizontal: true,
-                      ),
-                    ),
-                  ),
-          ),
-        ),
-        _buildSectionTitle('All Products', () {}),
-        productsState.isLoading && productsState.products.isEmpty
-            ? const SliverToBoxAdapter(
-                child: Center(child: CircularProgressIndicator()),
-              )
-            : productsState.errorMessage != null
-                ? SliverToBoxAdapter(
-                    child: Center(child: Text('Error: ${productsState.errorMessage}')),
-                  )
-                : SliverPadding(
-                    padding: const EdgeInsets.all(16),
-                    sliver: SliverGrid(
-                      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                        maxCrossAxisExtent: 200,
-                        childAspectRatio: 0.65, // Adjusted to account for shorter cards
-                        crossAxisSpacing: 12,
-                        mainAxisSpacing: 12,
-                      ),
-                      delegate: SliverChildBuilderDelegate(
-                        (context, index) => ProductCard(product: productsState.products[index]),
-                        childCount: productsState.products.length,
-                      ),
-                    ),
-                  ),
-        if (productsState.isLoading && productsState.products.isNotEmpty)
-          const SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.all(16),
-              child: Center(child: CircularProgressIndicator()),
-            ),
-          ),
-      ],
-    ),
-  );
-}
 
-  Widget _buildBottomNavigationBar() {
-    return BottomNavigationBar(
-      currentIndex: _currentIndex,
-      onTap: (index) => setState(() => _currentIndex = index),
-      backgroundColor: Colors.white,
-      elevation: 10,
-      selectedItemColor: Colors.blueAccent,
-      unselectedItemColor: Colors.grey,
-      showUnselectedLabels: true,
-      type: BottomNavigationBarType.fixed,
-      items: [
-        _buildNavBarItem(Icons.home, "Home"),
-        _buildNavBarItem(Icons.favorite, "Favorites"),
-        _buildNavBarItem(Icons.person, "Account"),
-      ],
+  Widget _buildHomeContent(List<Product> topRatedProducts, ProductsState productsState) {
+    return RefreshIndicator(
+      onRefresh: () async => ref.read(productsProvider.notifier).fetchProducts(refresh: true),
+      child: Container(
+        color: Colors.white,
+        child: CustomScrollView(
+          controller: _scrollController,
+          physics: const AlwaysScrollableScrollPhysics(),
+          slivers: [
+            _buildSectionTitle('Top Rated Products', () {}),
+            SliverToBoxAdapter(
+              child: SizedBox(
+                height: 200,
+                child: topRatedProducts.isEmpty
+                    ? const Center(child: Text('No top-rated products found'))
+                    : ListView.builder(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        scrollDirection: Axis.horizontal,
+                        itemCount: topRatedProducts.length,
+                        itemBuilder: (_, index) => Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                          child: ProductCard(
+                            product: topRatedProducts[index],
+                            isHorizontal: true,
+                          ),
+                        ),
+                      ),
+              ),
+            ),
+            _buildSectionTitle('All Products', () {}),
+            productsState.isLoading && productsState.products.isEmpty
+                ? const SliverToBoxAdapter(
+                    child: Center(child: CircularProgressIndicator()),
+                  )
+                : productsState.errorMessage != null
+                    ? SliverToBoxAdapter(
+                        child: Center(child: Text('Error: ${productsState.errorMessage}')),
+                      )
+                    : SliverPadding(
+                        padding: const EdgeInsets.all(16),
+                        sliver: SliverGrid(
+                          gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                            maxCrossAxisExtent: 200,
+                            childAspectRatio: 0.65,
+                            crossAxisSpacing: 12,
+                            mainAxisSpacing: 12,
+                          ),
+                          delegate: SliverChildBuilderDelegate(
+                            (context, index) => ProductCard(product: productsState.products[index]),
+                            childCount: productsState.products.length,
+                          ),
+                        ),
+                      ),
+            if (productsState.isLoading && productsState.products.isNotEmpty)
+              const SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Center(child: CircularProgressIndicator()),
+                ),
+              ),
+          ],
+        ),
+      ),
     );
   }
 
-  BottomNavigationBarItem _buildNavBarItem(IconData icon, String label) {
+  Widget _buildBottomNavigationBar() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 12,
+            spreadRadius: 1,
+          )
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        child: BottomNavigationBar(
+          currentIndex: _currentIndex,
+          onTap: (index) => setState(() => _currentIndex = index),
+          backgroundColor: Colors.white,
+          elevation: 0,
+          selectedLabelStyle: const TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 12,
+            letterSpacing: 0.5,
+          ),
+          unselectedLabelStyle: const TextStyle(fontSize: 12),
+          selectedItemColor: Colors.blueAccent,
+          unselectedItemColor: Colors.grey[600],
+          showUnselectedLabels: true,
+          type: BottomNavigationBarType.fixed,
+          items: [
+            _buildNavBarItem(Icons.home_outlined, Icons.home_filled, "Home", 0),
+            _buildNavBarItem(Icons.favorite_outline, Icons.favorite, "Favorites", 1),
+            _buildNavBarItem(Icons.person_outline, Icons.person, "Account", 2),
+          ],
+        ),
+      ),
+    );
+  }
+
+  BottomNavigationBarItem _buildNavBarItem(
+    IconData outlineIcon,
+    IconData filledIcon,
+    String label,
+    int index,
+  ) {
+    final isSelected = _currentIndex == index;
     return BottomNavigationBarItem(
       icon: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
-        padding: EdgeInsets.symmetric(vertical: _currentIndex == 0 ? 6 : 0),
-        child: Icon(icon, size: _currentIndex == 0 ? 28 : 24),
+        curve: Curves.fastOutSlowIn,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 200),
+              transitionBuilder: (child, animation) => ScaleTransition(
+                scale: animation,
+                child: FadeTransition(
+                  opacity: animation,
+                  child: child,
+                ),
+              ),
+              child: isSelected
+                  ? Icon(
+                      filledIcon,
+                      key: ValueKey('filled_$index'),
+                      size: 28,
+                      color: Colors.blueAccent,
+                    )
+                  : Icon(
+                      outlineIcon,
+                      key: ValueKey('outline_$index'),
+                      size: 26,
+                    ),
+            ),
+          ],
+        ),
       ),
       label: label,
     );
@@ -230,14 +300,26 @@ Widget _buildHomeContent(List<Product> topRatedProducts, ProductsState productsS
 
   Widget _buildSectionTitle(String title, VoidCallback onTap) {
     return SliverToBoxAdapter(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            TextButton(onPressed: onTap, child: const Text('See All')),
-          ],
+      child: Container(
+        color: Colors.white,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(title, 
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                )),
+              TextButton(
+                onPressed: onTap,
+                child: const Text('See All',
+                  style: TextStyle(color: Colors.blueAccent)),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -36,7 +36,7 @@ class ProductCard extends ConsumerWidget {
         elevation: 6,
         shadowColor: Colors.grey.withOpacity(0.3),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(10),
         ),
         child: Container(
           constraints: BoxConstraints(
@@ -62,7 +62,7 @@ class ProductCard extends ConsumerWidget {
                 children: [
                   ClipRRect(
                     borderRadius: const BorderRadius.vertical(
-                      top: Radius.circular(20),
+                      top: Radius.circular(10),
                     ),
                     child: Image.network(
                       product.thumbnail,
@@ -189,7 +189,7 @@ class ProductCard extends ConsumerWidget {
                             backgroundColor: Colors.green,
                             behavior: SnackBarBehavior.floating,
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
+                              borderRadius: BorderRadius.circular(10),
                             ),
                             duration: const Duration(seconds: 2),
                           ),
