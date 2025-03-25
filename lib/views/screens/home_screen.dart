@@ -48,20 +48,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final productsState = ref.watch(productsProvider);
 
     final screens = [
-      // Using FutureBuilder to handle the async topRatedProducts loading
-      FutureBuilder<List<Product>>(
-        future: ref.read(productsProvider.notifier).getTopRatedProducts(), // Future to get top-rated products
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (snapshot.hasData) {
-            final topRatedProducts = snapshot.data!;
-            return _buildHomeContent(topRatedProducts, productsState);
-          } else {
-            return const Center(child: Text('No top-rated products available'));
-          }
+      // Use Consumer to watch the topRatedProductsProvider
+      Consumer(
+        builder: (context, ref, child) {
+          final topRatedAsync = ref.watch(topRatedProductsProvider);
+          return topRatedAsync.when(
+            data: (topRatedProducts) => _buildHomeContent(topRatedProducts, productsState),
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (error, stackTrace) => Center(child: Text('Error: $error')),
+          );
         },
       ),
       const FavoritesScreen(),
@@ -142,65 +137,67 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ],
     );
   }
-
-  Widget _buildHomeContent(List<Product> topRatedProducts, ProductsState productsState) {
-    return RefreshIndicator(
-      onRefresh: () async => ref.read(productsProvider.notifier).fetchProducts(refresh: true),
-      child: CustomScrollView(
-        controller: _scrollController,
-        slivers: [
-          _buildSectionTitle('Top Rated Products', () {}),
-          SliverToBoxAdapter(
-            child: SizedBox(
-              height: 280,
-              child: topRatedProducts.isEmpty
-                  ? const Center(child: Text('No top-rated products found'))
-                  : ListView.builder(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      scrollDirection: Axis.horizontal,
-                      itemCount: topRatedProducts.length,
-                      itemBuilder: (_, index) => Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 4),
-                        child: ProductCard(product: topRatedProducts[index], isHorizontal: true),
+Widget _buildHomeContent(List<Product> topRatedProducts, ProductsState productsState) {
+  return RefreshIndicator(
+    onRefresh: () async => ref.read(productsProvider.notifier).fetchProducts(refresh: true),
+    child: CustomScrollView(
+      controller: _scrollController,
+      slivers: [
+        _buildSectionTitle('Top Rated Products', () {}),
+        SliverToBoxAdapter(
+          child: SizedBox(
+            height: 200, // Reduced height to match smaller cards
+            child: topRatedProducts.isEmpty
+                ? const Center(child: Text('No top-rated products found'))
+                : ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    scrollDirection: Axis.horizontal,
+                    itemCount: topRatedProducts.length,
+                    itemBuilder: (_, index) => Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: ProductCard(
+                        product: topRatedProducts[index],
+                        isHorizontal: true,
                       ),
                     ),
+                  ),
+          ),
+        ),
+        _buildSectionTitle('All Products', () {}),
+        productsState.isLoading && productsState.products.isEmpty
+            ? const SliverToBoxAdapter(
+                child: Center(child: CircularProgressIndicator()),
+              )
+            : productsState.errorMessage != null
+                ? SliverToBoxAdapter(
+                    child: Center(child: Text('Error: ${productsState.errorMessage}')),
+                  )
+                : SliverPadding(
+                    padding: const EdgeInsets.all(16),
+                    sliver: SliverGrid(
+                      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                        maxCrossAxisExtent: 200,
+                        childAspectRatio: 0.6, // Reduced aspect ratio to give more vertical space
+                        crossAxisSpacing: 12,
+                        mainAxisSpacing: 12,
+                      ),
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) => ProductCard(product: productsState.products[index]),
+                        childCount: productsState.products.length,
+                      ),
+                    ),
+                  ),
+        if (productsState.isLoading && productsState.products.isNotEmpty)
+          const SliverToBoxAdapter(
+            child: Padding(
+              padding: EdgeInsets.all(16),
+              child: Center(child: CircularProgressIndicator()),
             ),
           ),
-          _buildSectionTitle('All Products', () {}),
-          productsState.isLoading && productsState.products.isEmpty
-              ? const SliverToBoxAdapter(
-                  child: Center(child: CircularProgressIndicator()),
-                )
-              : productsState.errorMessage != null
-                  ? SliverToBoxAdapter(
-                      child: Center(child: Text('Error: ${productsState.errorMessage}')),
-                    )
-                  : SliverPadding(
-                      padding: const EdgeInsets.all(16),
-                      sliver: SliverGrid(
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          childAspectRatio: 0.7,
-                          crossAxisSpacing: 12,
-                          mainAxisSpacing: 12,
-                        ),
-                        delegate: SliverChildBuilderDelegate(
-                          (context, index) => ProductCard(product: productsState.products[index]),
-                          childCount: productsState.products.length,
-                        ),
-                      ),
-                    ),
-          if (productsState.isLoading && productsState.products.isNotEmpty)
-            const SliverToBoxAdapter(
-              child: Padding(
-                padding: EdgeInsets.all(16),
-                child: Center(child: CircularProgressIndicator()),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
+      ],
+    ),
+  );
+}
 
   Widget _buildBottomNavigationBar() {
     return BottomNavigationBar(

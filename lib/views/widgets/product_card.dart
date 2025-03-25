@@ -3,14 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:electronics_shop_app/models/product.dart';
 import 'package:electronics_shop_app/viewmodels/cart_view_model.dart';
 import 'package:electronics_shop_app/viewmodels/favorite_view_model.dart';
-import 'package:electronics_shop_app/views/screens/product_detail_screen.dart';
+import 'package:electronics_shop_app/views/screens/product_detail_screen.dart'; // Import the detail screen
 
 class ProductCard extends ConsumerWidget {
   final Product product;
   final bool isHorizontal;
 
   const ProductCard({
-    super.key, 
+    super.key,
     required this.product,
     this.isHorizontal = false,
   });
@@ -18,16 +18,13 @@ class ProductCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final cartNotifier = ref.read(cartProvider.notifier);
-    final isFavorite = ref.watch(favoritesProvider).contains(product);
     final favoritesNotifier = ref.read(favoritesProvider.notifier);
+    final isFavorite = ref.watch(favoritesProvider).any((p) => p.id == product.id);
     final isTablet = MediaQuery.of(context).size.width > 600;
-    final screenWidth = MediaQuery.of(context).size.width;
-    final buttonPadding = screenWidth < 600 ? 8.0 : 12.0;
-    final badgeFontSize = screenWidth < 600 ? 10.0 : 12.0;
 
     return GestureDetector(
       onTap: () {
-        // Navigate to product details
+        // Navigate to the product detail screen
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -36,155 +33,122 @@ class ProductCard extends ConsumerWidget {
         );
       },
       child: Card(
-        elevation: 4,
-        shadowColor: Colors.grey.withOpacity(0.2),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        elevation: 6,
+        shadowColor: Colors.grey.withOpacity(0.3),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
         child: Container(
           constraints: BoxConstraints(
-            maxWidth: isTablet ? 300 : 200,
-            minHeight: isHorizontal ? 180 : 200,
-            maxHeight: isHorizontal ? 230 : 250,
+            maxWidth: isHorizontal ? 180 : (isTablet ? 280 : 180),
           ),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [Colors.white, Colors.grey[50]!],
-            ),
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.1),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
             children: [
-              // Image Section with Add Button
-              AspectRatio(
-                aspectRatio: isHorizontal ? 1.3 : 1.5,
-                child: Stack(
-                  children: [
-                    ClipRRect(
-                      borderRadius: const BorderRadius.vertical(
-                        top: Radius.circular(16),
-                      ),
-                      child: Image.network(
-                        product.thumbnail,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                        loadingBuilder: (context, child, loadingProgress) {
-                          if (loadingProgress == null) return child;
-                          return Container(
-                            color: Colors.grey[200],
-                            child: const Center(
-                              child: CircularProgressIndicator(),
-                            ),
-                          );
-                        },
-                        errorBuilder: (context, error, stackTrace) {
-                          return Container(
-                            color: Colors.grey[200],
-                            child: const Icon(
-                              Icons.image_not_supported,
-                              size: 40,
-                              color: Colors.grey,
-                            ),
-                          );
-                        },
-                      ),
+              // Image Section
+              Stack(
+                children: [
+                  ClipRRect(
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(20),
                     ),
-                    // Discount Badge
-                    if (product.discountPercentage > 0)
-                      Positioned(
-                        top: 5,
-                        left: 5,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 6,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.redAccent,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Text(
-                            '${product.discountPercentage.toStringAsFixed(0)}% OFF',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: badgeFontSize,
-                              fontWeight: FontWeight.bold,
+                    child: Image.network(
+                      product.thumbnail,
+                      height: isHorizontal ? 90 : (isTablet ? 160 : 100),
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return Container(
+                          height: isHorizontal ? 90 : (isTablet ? 160 : 100),
+                          color: Colors.grey[200],
+                          child: Center(
+                            child: CircularProgressIndicator(
+                              value: loadingProgress.expectedTotalBytes != null
+                                  ? loadingProgress.cumulativeBytesLoaded /
+                                      loadingProgress.expectedTotalBytes!
+                                  : null,
                             ),
                           ),
-                        ),
-                      ),
-                    // Favorite Button
+                        );
+                      },
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          height: isHorizontal ? 90 : (isTablet ? 160 : 100),
+                          color: Colors.grey[200],
+                          child: const Icon(
+                            Icons.image_not_supported,
+                            size: 40,
+                            color: Colors.grey,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  // Discount Badge
+                  if (product.discountPercentage > 0)
                     Positioned(
-                      top: 5,
-                      right: 5,
+                      top: 8,
+                      left: 8,
                       child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.8),
-                          shape: BoxShape.circle,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
                         ),
-                        child: IconButton(
-                          icon: Icon(
-                            isFavorite ? Icons.favorite : Icons.favorite_border,
-                            color: isFavorite ? Colors.red : Colors.grey,
-                            size: 20,
+                        decoration: BoxDecoration(
+                          color: Colors.redAccent,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          '${product.discountPercentage.toStringAsFixed(0)}% OFF',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
                           ),
-                          constraints: const BoxConstraints(
-                            minWidth: 32,
-                            minHeight: 32,
-                          ),
-                          padding: const EdgeInsets.all(4),
-                          onPressed: () {
-                            if (isFavorite) {
-                              favoritesNotifier.removeFromFavorites(product);
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('Removed from favorites'),
-                                  backgroundColor: Colors.grey[800],
-                                  behavior: SnackBarBehavior.floating,
-                                  duration: const Duration(seconds: 1),
-                                ),
-                              );
-                            } else {
-                              favoritesNotifier.addToFavorites(product);
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('Added to favorites'),
-                                  backgroundColor: Colors.red[400],
-                                  behavior: SnackBarBehavior.floating,
-                                  duration: const Duration(seconds: 1),
-                                ),
-                              );
-                            }
-                          },
                         ),
                       ),
                     ),
-                    // Add Button
-                    Positioned(
-                      bottom: 3,
-                      right: 3,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          cartNotifier.addToCart(product);
+                  // Favorite Icon
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: IconButton(
+                      icon: Icon(
+                        isFavorite ? Icons.favorite : Icons.favorite_border,
+                        color: isFavorite ? Colors.red : Colors.grey[700],
+                        size: 20,
+                      ),
+                      onPressed: () {
+                        if (isFavorite) {
+                          favoritesNotifier.removeFromFavorites(product);
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: Row(
-                                children: [
-                                  const Icon(
-                                    Icons.check_circle,
-                                    color: Colors.white,
-                                    size: 16,
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Text(
-                                      '${product.title} added to cart',
-                                    ),
-                                  ),
-                                ],
+                              content: Text('${product.title} removed from favorites'),
+                              backgroundColor: Colors.red,
+                              behavior: SnackBarBehavior.floating,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
                               ),
+                              duration: const Duration(seconds: 2),
+                            ),
+                          );
+                        } else {
+                          favoritesNotifier.addToFavorites(product);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('${product.title} added to favorites'),
                               backgroundColor: Colors.green,
                               behavior: SnackBarBehavior.floating,
                               shape: RoundedRectangleBorder(
@@ -193,45 +157,80 @@ class ProductCard extends ConsumerWidget {
                               duration: const Duration(seconds: 2),
                             ),
                           );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: buttonPadding,
-                            vertical: 4,
+                        }
+                      },
+                    ),
+                  ),
+                  // Add to Cart Button (Bottom Right of Image)
+                  Positioned(
+                    bottom: 8,
+                    right: 8,
+                    child: GestureDetector(
+                      onTap: () {
+                        cartNotifier.addToCart(product);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Row(
+                              children: [
+                                const Icon(
+                                  Icons.check_circle,
+                                  color: Colors.white,
+                                  size: 16,
+                                ),
+                                const SizedBox(width: 6),
+                                Expanded(
+                                  child: Text(
+                                    '${product.title} added to cart',
+                                    style: const TextStyle(fontSize: 12),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            backgroundColor: Colors.green,
+                            behavior: SnackBarBehavior.floating,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            duration: const Duration(seconds: 2),
                           ),
-                          backgroundColor:
-                              Theme.of(context).colorScheme.primary,
-                          foregroundColor: Colors.white,
-                          elevation: 2,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          minimumSize: const Size(0, 0),
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.primary,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.2),
+                              blurRadius: 4,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
                         ),
-                        child: Text(
-                          'Add',
-                          style: TextStyle(
-                            fontSize: screenWidth < 600 ? 12 : 14,
-                          ),
+                        child: const Icon(
+                          Icons.add_shopping_cart,
+                          color: Colors.white,
+                          size: 20,
                         ),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
               // Content Section
               Padding(
-                padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
                   children: [
                     // Title
                     Text(
                       product.title,
                       style: TextStyle(
-                        fontSize: isTablet ? 18 : 14,
-                        fontWeight: FontWeight.w600,
+                        fontSize: isHorizontal ? 12 : (isTablet ? 15 : 13),
+                        fontWeight: FontWeight.w700,
+                        color: Colors.black87,
                         letterSpacing: 0.2,
                       ),
                       maxLines: 2,
@@ -239,11 +238,11 @@ class ProductCard extends ConsumerWidget {
                     ),
                     // Brand
                     Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 2),
+                      padding: const EdgeInsets.only(top: 2, bottom: 4),
                       child: Text(
                         product.brand,
                         style: TextStyle(
-                          fontSize: isTablet ? 14 : 12,
+                          fontSize: isHorizontal ? 10 : (isTablet ? 12 : 10),
                           color: Colors.grey[600],
                           fontWeight: FontWeight.w500,
                         ),
@@ -251,46 +250,28 @@ class ProductCard extends ConsumerWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    // Rating
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.star,
-                          color: Colors.amber,
-                          size: 16,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          product.rating.toString(),
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey[700],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
                     // Price Row
                     Row(
                       children: [
                         Text(
                           '₹${product.discountedPrice.toStringAsFixed(2)}',
                           style: TextStyle(
-                            fontSize: isTablet ? 18 : 14,
+                            fontSize: isHorizontal ? 12 : (isTablet ? 15 : 13),
                             fontWeight: FontWeight.bold,
                             color: Theme.of(context).colorScheme.primary,
                           ),
                         ),
-                        const SizedBox(width: 8),
-                        if (product.price != product.discountedPrice)
+                        if (product.price != product.discountedPrice) ...[
+                          const SizedBox(width: 8),
                           Text(
                             '₹${product.price.toStringAsFixed(2)}',
                             style: TextStyle(
-                              fontSize: isTablet ? 12 : 10,
+                              fontSize: isHorizontal ? 10 : (isTablet ? 12 : 10),
                               color: Colors.grey[600],
                               decoration: TextDecoration.lineThrough,
                             ),
                           ),
+                        ],
                       ],
                     ),
                   ],
